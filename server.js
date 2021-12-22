@@ -19,14 +19,41 @@ app.get("/", function (req, res) {
 });
 
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+// apt date endpoint :date is the url parameter and ? indicates it is optional
+app.get("/api/:date?", function (req, res) {
+  res.json(convertParamToObj(req.params.date));
 });
 
+
+app.get("/*", function (req, res) {
+  res.sendStatus(404);
+});
 
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+
+
+function convertParamToObj(dateParam) {
+
+  if (dateParam === undefined) {
+
+    return { unix: Date.now(), utc: new Date().toUTCString() };
+
+  } else {
+
+    const date = Number.isInteger(Number(dateParam)) ? new Date(Number(dateParam)) : new Date(dateParam);
+
+    if (date.toString() === 'Invalid Date') {
+
+        return { error: date.toString() };
+
+    } else {
+
+        return { unix: date.getTime(), utc: date.toUTCString() };
+
+    }
+  }
+}
